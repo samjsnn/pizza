@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+    networks:
+      - appnetwork
+  mongodb:
+    image: mongo  
+    ports:
+      - "27017:27017"
+    volumes:
+      - ~/data:/data/db
+    networks:
+      - appnetwork
+  mongoexpress:
+    image: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongodb
+      - nginx
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - appnetwork
+    depends_on:
+      - frontend
+networks:
+  appnetwork:
+volumes:
+  dbdata:
